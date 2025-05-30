@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{common/layout_4block :: layout(~{::body/content()})}">
+
+<head>
+		<title>社員一覧 | 社員管理システム</title>
+		<meta charset="UTF-8" />
+</head>
+
+<body class="admin user_list">
+	<h3>社員一覧画面</h3>
+	<!-- セッション中にユーザ情報が存在する場合のみ以下の処理を実行する。 -->
+	<!-- なお、セッション中のユーザ情報がない（null）の場合、-->
+	<!-- フィルターの処理により、当該Thymeleaf処理完了後にログイン画面にリダイレクトする。 -->
+	<div class="regist_link">
+		<a th:href="@{/regist/input}">新規社員登録</a>
+	</div>
+
+	<!-- ***検索結果が０件の場合*** -->
+	<th:block th:if="${#lists.isEmpty(emp)}">
+		<!--falseを書き換え、表示内容を記述すること-->
+		<div class="message">
+			<!--以下に該当する社員が存在しないときのメッセージを記述する -->
+			<p>該当する社員はいません。</p>
+			<!--以下に一覧表示に戻るリンクを記述する -->
+			<a th:href="@{/list}">一覧表示に戻る</a>
+		</div>
+	</th:block>
+	<!-- ***検索結果が０件の場合 ここまで*** -->
+
+	<!-- ***検索結果がある場合*** -->
+	<th:block th:if="!${#lists.isEmpty(emp)}">
+		<!-- Employeeテーブルからclass名を指定すること。 -->
+		<!-- ***trueを書き換えること*** -->
+		<table class="list_table" th:if="!${#lists.isEmpty(emp)}">
+			<tr>
+				<th>社員ID</th>
+				<th>社員名</th>
+				<th>性別</th>
+				<th>住所</th>
+				<th>生年月日</th>
+				<th>権限</th>
+				<th>部署名</th>
+				<th:block th:if="${session.user.authority!=null}">
+					<th:block th:switch="${session.user.authority}">
+						<th:block th:case=1>
+						</th:block>
+						<th:block th:case=2>
+							<th>編集</th>
+							<th>削除</th>
+							</th:blockth>
+						</th:block>
+					</th:block>
+				</th:block>
+			</tr>
+
+			<!-- ***####を書き換え、社員情報を全件出力する*** -->
+			<tr th:each="el:${emp}">
+				<td th:text="${el.empId}"></td>
+				<td th:text="${el.empName}"></td>
+
+				<th:block th:if="${el.gender!=null}">
+					<th:block th:switch="${el.gender}">
+						<th:block th:case=1>
+							<td th:text="男性"></td>
+						</th:block>
+						<th:block th:case=2>
+							<td th:text="女性"></td>
+						</th:block>
+					</th:block>
+				</th:block>
+
+				<td th:text="${el.address}"></td>
+				<td th:text="${#dates.format(el.birthday,'yyyy/MM/dd')}"></td>
+
+				<th:block th:if="${el.authority!=null}">
+					<th:block th:switch="${el.authority}">
+						<th:block th:case=1>
+							<td th:text="一般"></td>
+						</th:block>
+						<th:block th:case=2>
+							<td th:text="管理者"></td>
+						</th:block>
+					</th:block>
+				</th:block>
+				<td th:text="${el.dept.deptName}"></td>
+
+				<th:block th:if="${session.user.authority!=null}">
+					<th:block th:switch="${session.user.authority}">
+						<th:block th:case=1>
+						</th:block>
+						<th:block th:case=2>
+							<td class="button">
+								<form th:action="@{/regist/update/input/}+${el.empId}" method="post">
+									<input type="submit" value="編集" />
+								</form>
+							</td>
+							<td class="button">
+								<form th:action="@{/regist/delete/check/}+${el.empId}" method="post"><input
+										type="submit" value="削除" />
+								</form>
+							</td>
+							</th:blockth>
+						</th:block>
+					</th:block>
+				</th:block>
+			</tr>
+			<!-- ***####を書き換え、社員情報を全件出力する ここまで*** -->
+		</table>
+	</th:block>
+	<!-- ***検索結果がある場合 ここまで*** -->
+
+</body>
+
+</html>
